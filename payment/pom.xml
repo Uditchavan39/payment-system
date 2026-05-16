@@ -134,6 +134,6 @@
                 </executions>
             </plugin>
         </plugins>
+        <finalName>payment</finalName>
     </build>
-
 </project>
