@@ -14,4 +14,5 @@ public class Payment {
     private Double amount;
     private User sender;
     private User receiver;
+
 }
