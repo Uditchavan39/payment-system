@@ -1,0 +1,69 @@
+version: "3.9"
+services:
+
+  payment_db:
+  image:postgres:latest
+  container_name: payment_db
+  environment:
+    POSTGRES_DB: payment
+    POSTGRES_USER: postgres_payment
+    POSTGRES_PASSWORD: payment
+  volumes:
+    - payment_db_data:/var/lib/postgresql
+  networks:
+    - payment_network
+  ports:
+    - "5433:5432"
+  
+  user_db:
+    image: postgres:latest
+    container_name: user_db
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: user
+    volumes:
+      - user_db_data:/var/lib/postgresql
+    networks:
+      - user_network
+    ports:
+      - "5434:5432"
+    
+    payment_service:
+      image: payment_img:latest
+      container_name: payment_service
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://payment_db:5432/payment
+        SPRING_DATASOURCE_USERNAME: postgres_payment
+        SPRING_DATASOURCE_PASSWORD: payment
+      ports:
+        - "8082:8082"
+      depends_on:
+        - payment_db
+      networks:
+        - payment_network
+        - app_network
+
+      user_service:
+        image: user_img:latest
+        container_name: user_service
+        environment:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://user_db:5432/userdb
+          SPRING_DATASOURCE_USERNAME: postgres_user
+          SPRING_DATASOURCE_PASSWORD: user
+        ports:
+          - "8083:8083"
+        depends_on:
+          - user_db
+        networks:
+          - user_network
+          - app_network
+    volumes:
+      payment_db_data:
+      user_db_data:
+
+    networks:
+      payment_network:
+      user_network:
+      app_network:
+
